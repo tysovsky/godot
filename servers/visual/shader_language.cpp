@@ -3671,7 +3671,7 @@ ShaderLanguage::Node *ShaderLanguage::_parse_and_reduce_expression(BlockNode *p_
 }
 
 Error ShaderLanguage::_parse_block(BlockNode *p_block, const Map<StringName, BuiltInInfo> &p_builtin_types, bool p_just_one, bool p_can_break, bool p_can_continue) {
-
+	
 	while (true) {
 
 		TkPos pos = _get_tkpos();
@@ -4029,6 +4029,32 @@ Error ShaderLanguage::_parse_block(BlockNode *p_block, const Map<StringName, Bui
 			break;
 	}
 
+	return OK;
+}
+
+Error ShaderLanguage::_get_block_text(BlockNode *p_block) {
+	int num_opened = 0;
+	TkPos start_pos = _get_tkpos();
+	TkPos end_pos;
+	while (true) {
+		Token tk = _get_token();
+		if (tk.type == TK_CURLY_BRACKET_OPEN) {
+			num_opened++;
+		}
+		else if(tk.type == TK_CURLY_BRACKET_CLOSE){
+			if (num_opened)
+				num_opened--;
+			else {
+				end_pos = _get_tkpos();
+				break;
+			}
+		}
+	}
+	String geometry_code = code.substr(start_pos.char_idx, end_pos.char_idx-start_pos.char_idx-1);
+	
+	VariableNode *body_node = alloc_node<VariableNode>();
+	body_node->name = geometry_code;
+	p_block->statements.push_back(body_node);
 	return OK;
 }
 
@@ -4572,10 +4598,15 @@ Error ShaderLanguage::_parse_shader(const Map<StringName, FunctionInfo> &p_funct
 				}
 
 				current_function = name;
-
-				Error err = _parse_block(func_node->body, builtin_types);
-				if (err)
-					return err;
+				//For geometry function just treat everything inside of it as the code for geometry shader
+				if (name == "geometry") {
+					Error err = _get_block_text(func_node->body);
+				}
+				else {
+					Error err = _parse_block(func_node->body, builtin_types);
+					if (err)
+						return err;
+				}
 
 				current_function = StringName();
 			}

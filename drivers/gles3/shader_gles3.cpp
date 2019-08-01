@@ -437,9 +437,73 @@ ShaderGLES3::Version *ShaderGLES3::get_current_version() {
 		ERR_FAIL_V(NULL);
 	}
 
+
+	//Geometry shader
+	if (cc && !cc->geometry.empty()) {
+		strings.resize(strings_base_size);
+		//fragment precision is medium
+		strings.push_back("precision highp float;\n");
+		strings.push_back("precision highp int;\n");
+#ifndef GLES_OVER_GL
+		strings.push_back("precision highp sampler2D;\n");
+		strings.push_back("precision highp samplerCube;\n");
+		strings.push_back("precision highp sampler2DArray;\n");
+#endif
+
+		strings.push_back(cc->geometry.ascii());
+		v.geom_id = glCreateShader(GL_GEOMETRY_SHADER);
+		glShaderSource(v.geom_id, strings.size(), &strings[0], NULL);
+		glCompileShader(v.geom_id);
+
+		glGetShaderiv(v.geom_id, GL_COMPILE_STATUS, &status);
+		if (status != GL_FALSE) {
+			glAttachShader(v.id, v.geom_id);
+		}
+		else {
+			// error compiling
+			GLsizei iloglen;
+			glGetShaderiv(v.geom_id, GL_INFO_LOG_LENGTH, &iloglen);
+
+			if (iloglen < 0) {
+
+				glDeleteShader(v.frag_id);
+				glDeleteShader(v.vert_id);
+				glDeleteShader(v.geom_id);
+				glDeleteProgram(v.id);
+				v.id = 0;
+				ERR_PRINT("Geometry shader compilation failed with empty log");
+			}
+			else {
+
+				if (iloglen == 0) {
+
+					iloglen = 4096; //buggy driver (Adreno 220+....)
+				}
+
+				char *ilogmem = (char *)memalloc(iloglen + 1);
+				ilogmem[iloglen] = 0;
+				glGetShaderInfoLog(v.geom_id, iloglen, &iloglen, ilogmem);
+
+				String err_string = get_shader_name() + ": Geometry Program Compilation Failed:\n";
+
+				err_string += ilogmem;
+				_display_error_with_code(err_string, strings);
+				ERR_PRINT(err_string.ascii().get_data());
+				memfree(ilogmem);
+				glDeleteShader(v.frag_id);
+				glDeleteShader(v.vert_id);
+				glDeleteShader(v.geom_id);
+				glDeleteProgram(v.id);
+				v.id = 0;
+			}
+
+			ERR_FAIL_V(NULL);
+		}
+	}
+
 	glAttachShader(v.id, v.frag_id);
 	glAttachShader(v.id, v.vert_id);
-
+	
 	// bind attributes before linking
 	for (int i = 0; i < attribute_pair_count; i++) {
 
@@ -711,7 +775,7 @@ uint32_t ShaderGLES3::create_custom_shader() {
 	return last_custom_code++;
 }
 
-void ShaderGLES3::set_custom_shader_code(uint32_t p_code_id, const String &p_vertex, const String &p_vertex_globals, const String &p_fragment, const String &p_light, const String &p_fragment_globals, const String &p_uniforms, const Vector<StringName> &p_texture_uniforms, const Vector<CharString> &p_custom_defines) {
+void ShaderGLES3::set_custom_shader_code(uint32_t p_code_id, const String &p_vertex, const String &p_vertex_globals, const String &p_fragment, const String &p_light, const String &p_fragment_globals, const String &p_geometry, const String &p_uniforms, const Vector<StringName> &p_texture_uniforms, const Vector<CharString> &p_custom_defines) {
 
 	ERR_FAIL_COND(!custom_code_map.has(p_code_id));
 	CustomCode *cc = &custom_code_map[p_code_id];
@@ -720,6 +784,7 @@ void ShaderGLES3::set_custom_shader_code(uint32_t p_code_id, const String &p_ver
 	cc->vertex_globals = p_vertex_globals;
 	cc->fragment = p_fragment;
 	cc->fragment_globals = p_fragment_globals;
+	cc->geometry = p_geometry;
 	cc->light = p_light;
 	cc->texture_uniforms = p_texture_uniforms;
 	cc->uniforms = p_uniforms;

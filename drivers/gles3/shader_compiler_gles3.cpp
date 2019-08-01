@@ -522,6 +522,10 @@ String ShaderCompilerGLES3::_dump_node_code(SL::Node *p_node, int p_level, Gener
 					_dump_function_deps(pnode, fnode->name, function_code, r_gen_code.fragment_global, added_fragment);
 					r_gen_code.light = function_code[light_name];
 				}
+
+				if (fnode->name == geometry_name) {
+					r_gen_code.geometry = reinterpret_cast<ShaderLanguage::VariableNode*>(fnode->body->statements[0])->name;
+				}
 			}
 
 			//code+=dump_node_code(pnode->body,p_level);
@@ -985,6 +989,7 @@ ShaderCompilerGLES3::ShaderCompilerGLES3() {
 	fragment_name = "fragment";
 	light_name = "light";
 	time_name = "TIME";
+	geometry_name = "geometry";
 
 	List<String> func_list;
 

@@ -204,11 +204,14 @@ public:
 	BlendShapeMode get_blend_shape_mode() const;
 
 	void surface_update_region(int p_surface, int p_offset, const PoolVector<uint8_t> &p_data);
+	void surface_update_indices(int p_surface, const PoolVector<uint8_t> &p_data);
 
 	int get_surface_count() const;
 	void surface_remove(int p_idx);
 
 	void surface_set_custom_aabb(int p_idx, const AABB &p_aabb); //only recognized by driver
+	
+	void surface_set_primitive_type(int p_idx, PrimitiveType type);
 
 	int surface_get_array_len(int p_idx) const;
 	int surface_get_array_index_len(int p_idx) const;

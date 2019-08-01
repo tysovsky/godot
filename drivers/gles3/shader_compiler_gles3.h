@@ -63,6 +63,7 @@ public:
 		String fragment_global;
 		String fragment;
 		String light;
+		String geometry;
 
 		bool uses_fragment_time;
 		bool uses_vertex_time;
@@ -84,6 +85,7 @@ private:
 	StringName current_func_name;
 	StringName vertex_name;
 	StringName fragment_name;
+	StringName geometry_name;
 	StringName light_name;
 	StringName time_name;
 

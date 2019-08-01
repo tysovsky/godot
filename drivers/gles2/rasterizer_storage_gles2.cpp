@@ -2536,6 +2536,29 @@ void RasterizerStorageGLES2::mesh_surface_update_region(RID p_mesh, int p_surfac
 	glBindBuffer(GL_ARRAY_BUFFER, 0); //unbind
 }
 
+void RasterizerStorageGLES2::mesh_surface_update_indices(RID p_mesh, int p_surface,  const PoolVector<uint8_t> &p_data) {
+
+	Mesh *mesh = mesh_owner.getornull(p_mesh);
+	ERR_FAIL_COND(!mesh);
+	ERR_FAIL_INDEX(p_surface, mesh->surfaces.size());
+
+	int total_size = p_data.size();
+
+	PoolVector<uint8_t>::Read r = p_data.read();
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->surfaces[p_surface]->index_id);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, total_size, r.ptr(), GL_STATIC_DRAW);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0); //unbind
+}
+
+void RasterizerStorageGLES2::mesh_surface_set_primitive_type(RID p_mesh, int p_surface, VS::PrimitiveType type) {
+	Mesh *mesh = mesh_owner.getornull(p_mesh);
+	ERR_FAIL_COND(!mesh);
+	ERR_FAIL_INDEX(p_surface, mesh->surfaces.size());
+
+	mesh->surfaces[p_surface]->primitive = type;
+	mesh->instance_change_notify(false, true);
+}
 void RasterizerStorageGLES2::mesh_surface_set_material(RID p_mesh, int p_surface, RID p_material) {
 	Mesh *mesh = mesh_owner.getornull(p_mesh);
 	ERR_FAIL_COND(!mesh);

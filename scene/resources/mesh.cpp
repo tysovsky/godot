@@ -981,6 +981,12 @@ void ArrayMesh::surface_set_material(int p_idx, const Ref<Material> &p_material)
 	emit_changed();
 }
 
+void ArrayMesh::surface_set_primitive_type(int p_idx, PrimitiveType type) {
+	ERR_FAIL_INDEX(p_idx, surfaces.size());
+	VisualServer::get_singleton()->mesh_surface_set_primitive_type(mesh, p_idx, (VS::PrimitiveType)type);
+	emit_changed();
+}
+
 int ArrayMesh::surface_find_by_name(const String &p_name) const {
 	for (int i = 0; i < surfaces.size(); i++) {
 		if (surfaces[i].name == p_name) {
@@ -1009,6 +1015,12 @@ void ArrayMesh::surface_update_region(int p_surface, int p_offset, const PoolVec
 
 	ERR_FAIL_INDEX(p_surface, surfaces.size());
 	VS::get_singleton()->mesh_surface_update_region(mesh, p_surface, p_offset, p_data);
+	emit_changed();
+}
+
+void ArrayMesh::surface_update_indices(int p_surface,  const PoolVector<uint8_t> &p_data) {
+
+	VS::get_singleton()->mesh_surface_update_indices(mesh, p_surface, p_data);
 	emit_changed();
 }
 
@@ -1302,6 +1314,8 @@ void ArrayMesh::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("add_surface_from_arrays", "primitive", "arrays", "blend_shapes", "compress_flags"), &ArrayMesh::add_surface_from_arrays, DEFVAL(Array()), DEFVAL(ARRAY_COMPRESS_DEFAULT));
 	ClassDB::bind_method(D_METHOD("surface_remove", "surf_idx"), &ArrayMesh::surface_remove);
 	ClassDB::bind_method(D_METHOD("surface_update_region", "surf_idx", "offset", "data"), &ArrayMesh::surface_update_region);
+	ClassDB::bind_method(D_METHOD("surface_update_indices", "surf_idx", "data"), &ArrayMesh::surface_update_indices);
+	ClassDB::bind_method(D_METHOD("surface_set_primitive_type", "surf_idx", "primitive_type"), &ArrayMesh::surface_set_primitive_type);
 	ClassDB::bind_method(D_METHOD("surface_get_array_len", "surf_idx"), &ArrayMesh::surface_get_array_len);
 	ClassDB::bind_method(D_METHOD("surface_get_array_index_len", "surf_idx"), &ArrayMesh::surface_get_array_index_len);
 	ClassDB::bind_method(D_METHOD("surface_get_format", "surf_idx"), &ArrayMesh::surface_get_format);

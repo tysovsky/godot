@@ -112,6 +112,7 @@ private:
 		String vertex_globals;
 		String fragment;
 		String fragment_globals;
+		String geometry;
 		String light;
 		String uniforms;
 		uint32_t version;
@@ -125,6 +126,7 @@ private:
 		GLuint id;
 		GLuint vert_id;
 		GLuint frag_id;
+		GLuint geom_id;
 		GLint *uniform_location;
 		Vector<GLint> texture_uniform_locations;
 		uint32_t code_version;
@@ -324,7 +326,7 @@ public:
 	void clear_caches();
 
 	uint32_t create_custom_shader();
-	void set_custom_shader_code(uint32_t p_code_id, const String &p_vertex, const String &p_vertex_globals, const String &p_fragment, const String &p_light, const String &p_fragment_globals, const String &p_uniforms, const Vector<StringName> &p_texture_uniforms, const Vector<CharString> &p_custom_defines);
+	void set_custom_shader_code(uint32_t p_code_id, const String &p_vertex, const String &p_vertex_globals, const String &p_fragment, const String &p_light, const String &p_fragment_globals, const String &p_geometry, const String &p_uniforms, const Vector<StringName> &p_texture_uniforms, const Vector<CharString> &p_custom_defines);
 	void set_custom_shader(uint32_t p_code_id);
 	void free_custom_shader(uint32_t p_code_id);
 
