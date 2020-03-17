@@ -5,8 +5,8 @@
 /*                           GODOT ENGINE                                */
 /*                      https://godotengine.org                          */
 /*************************************************************************/
-/* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2007-2020 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2014-2020 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -36,10 +36,6 @@
 #include "core/resource.h"
 #include "core/typedefs.h"
 #include "core/ustring.h"
-
-/**
-	@author Juan Linietsky <reduzio@gmail.com>
-*/
 
 /**
  * Input Event classes. These are used in the main loop.
@@ -173,7 +169,7 @@ enum MidiMessageList {
  */
 
 class InputEvent : public Resource {
-	GDCLASS(InputEvent, Resource)
+	GDCLASS(InputEvent, Resource);
 
 	int device;
 
@@ -188,7 +184,7 @@ public:
 	int get_device() const;
 
 	bool is_action(const StringName &p_action) const;
-	bool is_action_pressed(const StringName &p_action) const;
+	bool is_action_pressed(const StringName &p_action, bool p_allow_echo = false) const;
 	bool is_action_released(const StringName &p_action) const;
 	float get_action_strength(const StringName &p_action) const;
 
@@ -210,7 +206,7 @@ public:
 };
 
 class InputEventWithModifiers : public InputEvent {
-	GDCLASS(InputEventWithModifiers, InputEvent)
+	GDCLASS(InputEventWithModifiers, InputEvent);
 
 	bool shift;
 	bool alt;
@@ -256,7 +252,7 @@ public:
 
 class InputEventKey : public InputEventWithModifiers {
 
-	GDCLASS(InputEventKey, InputEventWithModifiers)
+	GDCLASS(InputEventKey, InputEventWithModifiers);
 
 	bool pressed; /// otherwise release
 
@@ -295,7 +291,7 @@ public:
 
 class InputEventMouse : public InputEventWithModifiers {
 
-	GDCLASS(InputEventMouse, InputEventWithModifiers)
+	GDCLASS(InputEventMouse, InputEventWithModifiers);
 
 	int button_mask;
 
@@ -320,7 +316,7 @@ public:
 
 class InputEventMouseButton : public InputEventMouse {
 
-	GDCLASS(InputEventMouseButton, InputEventMouse)
+	GDCLASS(InputEventMouseButton, InputEventMouse);
 
 	float factor;
 	int button_index;
@@ -354,7 +350,10 @@ public:
 
 class InputEventMouseMotion : public InputEventMouse {
 
-	GDCLASS(InputEventMouseMotion, InputEventMouse)
+	GDCLASS(InputEventMouseMotion, InputEventMouse);
+
+	Vector2 tilt;
+	float pressure;
 	Vector2 relative;
 	Vector2 speed;
 
@@ -362,6 +361,12 @@ protected:
 	static void _bind_methods();
 
 public:
+	void set_tilt(const Vector2 &p_tilt);
+	Vector2 get_tilt() const;
+
+	void set_pressure(float p_pressure);
+	float get_pressure() const;
+
 	void set_relative(const Vector2 &p_relative);
 	Vector2 get_relative() const;
 
@@ -378,7 +383,7 @@ public:
 
 class InputEventJoypadMotion : public InputEvent {
 
-	GDCLASS(InputEventJoypadMotion, InputEvent)
+	GDCLASS(InputEventJoypadMotion, InputEvent);
 	int axis; ///< Joypad axis
 	float axis_value; ///< -1 to 1
 
@@ -403,7 +408,7 @@ public:
 };
 
 class InputEventJoypadButton : public InputEvent {
-	GDCLASS(InputEventJoypadButton, InputEvent)
+	GDCLASS(InputEventJoypadButton, InputEvent);
 
 	int button_index;
 	bool pressed;
@@ -431,7 +436,7 @@ public:
 };
 
 class InputEventScreenTouch : public InputEvent {
-	GDCLASS(InputEventScreenTouch, InputEvent)
+	GDCLASS(InputEventScreenTouch, InputEvent);
 	int index;
 	Vector2 pos;
 	bool pressed;
@@ -457,7 +462,7 @@ public:
 
 class InputEventScreenDrag : public InputEvent {
 
-	GDCLASS(InputEventScreenDrag, InputEvent)
+	GDCLASS(InputEventScreenDrag, InputEvent);
 	int index;
 	Vector2 pos;
 	Vector2 relative;
@@ -487,7 +492,7 @@ public:
 
 class InputEventAction : public InputEvent {
 
-	GDCLASS(InputEventAction, InputEvent)
+	GDCLASS(InputEventAction, InputEvent);
 
 	StringName action;
 	bool pressed;
@@ -519,7 +524,7 @@ public:
 
 class InputEventGesture : public InputEventWithModifiers {
 
-	GDCLASS(InputEventGesture, InputEventWithModifiers)
+	GDCLASS(InputEventGesture, InputEventWithModifiers);
 
 	Vector2 pos;
 
@@ -533,7 +538,7 @@ public:
 
 class InputEventMagnifyGesture : public InputEventGesture {
 
-	GDCLASS(InputEventMagnifyGesture, InputEventGesture)
+	GDCLASS(InputEventMagnifyGesture, InputEventGesture);
 	real_t factor;
 
 protected:
@@ -551,7 +556,7 @@ public:
 
 class InputEventPanGesture : public InputEventGesture {
 
-	GDCLASS(InputEventPanGesture, InputEventGesture)
+	GDCLASS(InputEventPanGesture, InputEventGesture);
 	Vector2 delta;
 
 protected:
@@ -568,7 +573,7 @@ public:
 };
 
 class InputEventMIDI : public InputEvent {
-	GDCLASS(InputEventMIDI, InputEvent)
+	GDCLASS(InputEventMIDI, InputEvent);
 
 	int channel;
 	int message;

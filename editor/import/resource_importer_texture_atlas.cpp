@@ -5,8 +5,8 @@
 /*                           GODOT ENGINE                                */
 /*                      https://godotengine.org                          */
 /*************************************************************************/
-/* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2007-2020 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2014-2020 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -143,8 +143,8 @@ static void _plot_triangle(Vector2 *vertices, const Vector2 &p_offset, bool p_tr
 
 				int px = xi, py = yi;
 				int sx = px, sy = py;
-				sx = CLAMP(sx, 0, src_width);
-				sy = CLAMP(sy, 0, src_height);
+				sx = CLAMP(sx, 0, src_width - 1);
+				sy = CLAMP(sy, 0, src_height - 1);
 				Color color = p_src_image->get_pixel(sx, sy);
 				if (p_transposed) {
 					SWAP(px, py);
@@ -165,8 +165,8 @@ static void _plot_triangle(Vector2 *vertices, const Vector2 &p_offset, bool p_tr
 			for (int xi = (xf < width ? int(xf) : width - 1); xi >= (xt > 0 ? xt : 0); xi--) {
 				int px = xi, py = yi;
 				int sx = px, sy = py;
-				sx = CLAMP(sx, 0, src_width);
-				sy = CLAMP(sy, 0, src_height);
+				sx = CLAMP(sx, 0, src_width - 1);
+				sy = CLAMP(sy, 0, src_height - 1);
 				Color color = p_src_image->get_pixel(sx, sy);
 				if (p_transposed) {
 					SWAP(px, py);
@@ -205,7 +205,7 @@ Error ResourceImporterTextureAtlas::import_group_file(const String &p_group_file
 	for (const Map<String, Map<StringName, Variant> >::Element *E = p_source_file_options.front(); E; E = E->next(), idx++) {
 
 		PackData &pack_data = pack_data_files.write[idx];
-		String source = E->key();
+		const String &source = E->key();
 		const Map<StringName, Variant> &options = E->get();
 
 		Ref<Image> image;

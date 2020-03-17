@@ -5,8 +5,8 @@
 /*                           GODOT ENGINE                                */
 /*                      https://godotengine.org                          */
 /*************************************************************************/
-/* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2007-2020 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2014-2020 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -50,8 +50,8 @@ public:
 	enum FeedDataType {
 		FEED_NOIMAGE, // we don't have an image yet
 		FEED_RGB, // our texture will contain a normal RGB texture that can be used directly
-		FEED_YCbCr, // our texture will contain a YCbCr texture that needs to be converted to RGB before output
-		FEED_YCbCr_Sep // our camera is split into two textures, first plane contains Y data, second plane contains CbCr data
+		FEED_YCBCR, // our texture will contain a YCbCr texture that needs to be converted to RGB before output
+		FEED_YCBCR_SEP // our camera is split into two textures, first plane contains Y data, second plane contains CbCr data
 	};
 
 	enum FeedPosition {

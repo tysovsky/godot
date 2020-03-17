@@ -5,8 +5,8 @@
 /*                           GODOT ENGINE                                */
 /*                      https://godotengine.org                          */
 /*************************************************************************/
-/* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2007-2020 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2014-2020 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -147,7 +147,8 @@ class AudioBusLayout;
 
 class AudioServer : public Object {
 
-	GDCLASS(AudioServer, Object)
+	GDCLASS(AudioServer, Object);
+
 public:
 	//re-expose this here, as AudioDriver is not exposed to script
 	enum SpeakerMode {
@@ -179,6 +180,8 @@ private:
 
 	int channel_count;
 	int to_mix;
+
+	float global_rate_scale;
 
 	struct Bus {
 
@@ -237,24 +240,9 @@ private:
 
 	Mutex *audio_data_lock;
 
-	float output_latency;
-	uint64_t output_latency_ticks;
-
 	void init_channels_and_buffers();
 
 	void _mix_step();
-
-#if 0
-	struct AudioInBlock {
-
-		Ref<AudioStreamSample> audio_stream;
-		int current_position;
-		bool loops;
-	};
-
-	Map<StringName, AudioInBlock *> audio_in_block_map;
-	Vector<AudioInBlock *> audio_in_blocks;
-#endif
 
 	struct CallbackItem {
 
@@ -338,6 +326,9 @@ public:
 
 	bool is_bus_channel_active(int p_bus, int p_channel) const;
 
+	void set_global_rate_scale(float p_scale);
+	float get_global_rate_scale() const;
+
 	virtual void init();
 	virtual void finish();
 	virtual void update();
@@ -390,7 +381,7 @@ VARIANT_ENUM_CAST(AudioServer::SpeakerMode)
 
 class AudioBusLayout : public Resource {
 
-	GDCLASS(AudioBusLayout, Resource)
+	GDCLASS(AudioBusLayout, Resource);
 
 	friend class AudioServer;
 

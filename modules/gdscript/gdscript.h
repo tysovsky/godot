@@ -5,8 +5,8 @@
 /*                           GODOT ENGINE                                */
 /*                      https://godotengine.org                          */
 /*************************************************************************/
-/* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2007-2020 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2014-2020 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -111,6 +111,7 @@ class GDScript : public Script {
 	String source;
 	String path;
 	String name;
+	String fully_qualified_name;
 	SelfList<GDScript> script_list;
 
 	GDScriptInstance *_create_instance(const Variant **p_args, int p_argcount, Object *p_owner, bool p_isref, Variant::CallError &r_error);
@@ -130,6 +131,8 @@ class GDScript : public Script {
 #endif
 
 	bool _update_exports();
+
+	void _save_orphaned_subclasses();
 
 protected:
 	bool _get(const StringName &p_name, Variant &r_ret) const;
@@ -297,6 +300,7 @@ struct GDScriptWarning {
 		UNSAFE_CAST, // Cast used in an unknown type
 		UNSAFE_CALL_ARGUMENT, // Function call argument is of a supertype of the require argument
 		DEPRECATED_KEYWORD, // The keyword is deprecated and should be replaced
+		STANDALONE_TERNARY, // Return value of ternary expression is discarded
 		WARNING_MAX,
 	} code;
 	Vector<String> symbols;
@@ -352,6 +356,8 @@ class GDScriptLanguage : public ScriptLanguage {
 	SelfList<GDScriptFunction>::List function_list;
 	bool profiling;
 	uint64_t script_frame_time;
+
+	Map<String, ObjectID> orphan_subclasses;
 
 public:
 	int calls;
@@ -458,7 +464,7 @@ public:
 	virtual bool can_inherit_from_file() { return true; }
 	virtual int find_function(const String &p_function, const String &p_code) const;
 	virtual String make_function(const String &p_class, const String &p_name, const PoolStringArray &p_args) const;
-	virtual Error complete_code(const String &p_code, const String &p_path, Object *p_owner, List<String> *r_options, bool &r_forced, String &r_call_hint);
+	virtual Error complete_code(const String &p_code, const String &p_path, Object *p_owner, List<ScriptCodeCompletionOption> *r_options, bool &r_forced, String &r_call_hint);
 #ifdef TOOLS_ENABLED
 	virtual Error lookup_code(const String &p_code, const String &p_symbol, const String &p_path, Object *p_owner, LookupResult &r_result);
 #endif
@@ -504,12 +510,14 @@ public:
 	virtual bool handles_global_class_type(const String &p_type) const;
 	virtual String get_global_class_name(const String &p_path, String *r_base_type = NULL, String *r_icon_path = NULL) const;
 
+	void add_orphan_subclass(const String &p_qualified_name, const ObjectID &p_subclass);
+	Ref<GDScript> get_orphan_subclass(const String &p_qualified_name);
+
 	GDScriptLanguage();
 	~GDScriptLanguage();
 };
 
 class ResourceFormatLoaderGDScript : public ResourceFormatLoader {
-	GDCLASS(ResourceFormatLoaderGDScript, ResourceFormatLoader)
 public:
 	virtual RES load(const String &p_path, const String &p_original_path = "", Error *r_error = NULL);
 	virtual void get_recognized_extensions(List<String> *p_extensions) const;
@@ -519,7 +527,6 @@ public:
 };
 
 class ResourceFormatSaverGDScript : public ResourceFormatSaver {
-	GDCLASS(ResourceFormatSaverGDScript, ResourceFormatSaver)
 public:
 	virtual Error save(const String &p_path, const RES &p_resource, uint32_t p_flags = 0);
 	virtual void get_recognized_extensions(const RES &p_resource, List<String> *p_extensions) const;

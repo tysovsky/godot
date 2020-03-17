@@ -5,8 +5,8 @@
 /*                           GODOT ENGINE                                */
 /*                      https://godotengine.org                          */
 /*************************************************************************/
-/* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2007-2020 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2014-2020 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -35,6 +35,11 @@
 
 #ifndef __GNUC__
 #define __builtin_bswap32 _byteswap_ulong
+#endif
+
+#if defined(__GNUC__)
+// Workaround GCC warning from -Wcast-function-type.
+#define GetProcAddress (void *)GetProcAddress
 #endif
 
 DWORD WINAPI _xinput_get_state(DWORD dwUserIndex, XINPUT_STATE *pState) {
@@ -334,7 +339,7 @@ void JoypadWindows::process_joypads() {
 		if (joy.state.dwPacketNumber != joy.last_packet) {
 
 			int button_mask = XINPUT_GAMEPAD_DPAD_UP;
-			for (int j = 0; j <= 16; i++) {
+			for (int j = 0; j <= 16; j++) {
 
 				input->joy_button(joy.id, j, joy.state.Gamepad.wButtons & button_mask);
 				button_mask = button_mask * 2;
